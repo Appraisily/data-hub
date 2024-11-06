@@ -18,8 +18,8 @@ USER node
 # Copy source code
 COPY --chown=node:node . .
 
-# Build directamente con TypeScript
-RUN npx tsc
+# Build usando npx con la ruta completa al paquete typescript
+RUN npx typescript/bin/tsc
 
 # Clean up dev dependencies
 RUN npm ci --omit=dev

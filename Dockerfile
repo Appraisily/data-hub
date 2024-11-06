@@ -2,6 +2,9 @@ FROM node:20-slim
 
 WORKDIR /app
 
+# Set NODE_ENV to production
+ENV NODE_ENV=production
+
 # Copy package files
 COPY package*.json ./
 
@@ -14,7 +17,7 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
-# Clean up dev dependencies after build
+# Clean up dev dependencies
 RUN npm ci --omit=dev
 
 # Expose port

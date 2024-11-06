@@ -11,8 +11,14 @@ COPY package*.json ./
 # Install ALL dependencies (including dev dependencies needed for build)
 RUN npm ci
 
+# Asegurar permisos correctos para node_modules y dist
+RUN mkdir -p dist && chown -R node:node .
+
+# Cambiar al usuario node
+USER node
+
 # Copy source code
-COPY . .
+COPY --chown=node:node . .
 
 # Build TypeScript
 RUN npm run build

@@ -9,7 +9,7 @@
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "clean": "rimraf dist",
+    "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "prepare": "node -e \"if(process.env.NODE_ENV !== 'production') require('husky').install()\""
   },

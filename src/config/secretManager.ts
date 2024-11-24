@@ -42,16 +42,9 @@ export class SecretManagerService {
 
   async loadSecrets(): Promise<void> {
     try {
-      // Load all required secrets
-      const requiredSecrets = [
-        'PENDING_APPRAISALS_SPREADSHEET_ID',
-        'JWT_SECRET'
-      ];
-
-      for (const secretName of requiredSecrets) {
-        process.env[secretName] = await this.getSecret(secretName);
-      }
-
+      // Load API key
+      process.env.API_KEY = await this.getSecret('DATA_HUB_API_KEY');
+      
       logger.info('All secrets loaded successfully');
     } catch (error) {
       logger.error('Error loading secrets:', error);

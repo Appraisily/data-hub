@@ -1,24 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import { logger } from '../utils/logger';
 
 export interface AuthRequest extends Request {
-  user?: any;
+  authenticated?: boolean;
 }
 
 export const auth = (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-
-    if (!token) {
-      throw new Error();
+    const apiKey = req.header('X-API-Key');
+    
+    if (!apiKey || apiKey !== process.env.API_KEY) {
+      throw new Error('Invalid API key');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || '');
-    req.user = decoded;
+    req.authenticated = true;
     next();
   } catch (error) {
-    logger.warn('Authentication failed');
-    res.status(401).json({ error: 'Please authenticate' });
+    logger.warn('Authentication failed:', error);
+    res.status(401).json({ error: 'Invalid API key' });
   }
 };

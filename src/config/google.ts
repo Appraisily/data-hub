@@ -7,11 +7,9 @@ export class GoogleAuth {
 
   private constructor() {
     try {
-      const credentials = JSON.parse(process.env.GOOGLE_DOCS_CREDENTIALS || '');
-      
+      // Use default compute credentials
       this.auth = new google.auth.GoogleAuth({
-        credentials,
-        scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+        scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
       });
     } catch (error) {
       logger.error('Error initializing Google Auth:', error);

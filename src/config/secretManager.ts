@@ -7,6 +7,7 @@ export class SecretManagerService {
   private projectId: string;
 
   private constructor() {
+    // Use default credentials
     this.client = new SecretManagerServiceClient();
     this.projectId = process.env.GOOGLE_CLOUD_PROJECT_ID || '';
   }
@@ -43,22 +44,8 @@ export class SecretManagerService {
     try {
       // Load all required secrets
       const requiredSecrets = [
-        'GOOGLE_DOCS_CREDENTIALS',
-        'WORDPRESS_API_URL',
-        'SENDGRID_API_KEY',
-        'GOOGLE_SHEET_NAME',
-        'JWT_SECRET',
-        'SHARED_SECRET',
         'PENDING_APPRAISALS_SPREADSHEET_ID',
-        'SALES_SPREADSHEET_ID',
-        'LOG_SPREADSHEET_ID',
-        'wp_username',
-        'wp_app_password',
-        'GOOGLE_CLIENT_EMAIL',
-        'GOOGLE_PRIVATE_KEY',
-        'GA_VIEW_ID',
-        'TAWKTO_API_KEY',
-        'GITHUB_TOKEN'
+        'JWT_SECRET'
       ];
 
       for (const secretName of requiredSecrets) {

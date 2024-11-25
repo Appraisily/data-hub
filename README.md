@@ -12,7 +12,7 @@ A centralized data management service for Appraisily, providing secure access to
 
 ## Current API Status
 
-**Note**: Currently, only the pending appraisals endpoint is active. Additional endpoints for WordPress integration, analytics, and other features will be activated in future updates.
+**Note**: Currently, only the appraisals endpoints are active. Additional endpoints for WordPress integration, analytics, and other features will be activated in future updates.
 
 ## Authentication
 
@@ -24,7 +24,7 @@ X-API-Key: your_api_key_here
 
 ## Active Endpoints
 
-#### `GET /api/appraisals/pending`
+### `GET /api/appraisals/pending`
 Retrieves all pending appraisals from the system.
 
 **Authentication Required**: Yes (API Key)
@@ -37,6 +37,7 @@ X-API-Key: your_api_key_here
 **Query Parameters**:
 - `email` (optional): Filter by customer email
 - `sessionId` (optional): Filter by session ID (custom order ID)
+- `wordpressSlug` (optional): Filter by WordPress URL slug
 
 **Example Requests**:
 ```bash
@@ -55,13 +56,61 @@ curl -X GET \
   'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?sessionId=abc123' \
   -H 'X-API-Key: your_api_key_here'
 
-# Filter by both email and session ID
+# Filter by WordPress slug
 curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?email=customer@example.com&sessionId=abc123' \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?wordpressSlug=vintage-watch-123' \
+  -H 'X-API-Key: your_api_key_here'
+
+# Filter by multiple parameters
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?email=customer@example.com&sessionId=abc123&wordpressSlug=vintage-watch-123' \
   -H 'X-API-Key: your_api_key_here'
 ```
 
-**Response**:
+### `GET /api/appraisals/completed`
+Retrieves all completed appraisals from the system.
+
+**Authentication Required**: Yes (API Key)
+
+**Headers**:
+```
+X-API-Key: your_api_key_here
+```
+
+**Query Parameters**:
+- `email` (optional): Filter by customer email
+- `sessionId` (optional): Filter by session ID (custom order ID)
+- `wordpressSlug` (optional): Filter by WordPress URL slug
+
+**Example Requests**:
+```bash
+# Get all completed appraisals
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed' \
+  -H 'X-API-Key: your_api_key_here'
+
+# Filter by email
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed?email=customer@example.com' \
+  -H 'X-API-Key: your_api_key_here'
+
+# Filter by session ID
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed?sessionId=abc123' \
+  -H 'X-API-Key: your_api_key_here'
+
+# Filter by WordPress slug
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed?wordpressSlug=vintage-watch-123' \
+  -H 'X-API-Key: your_api_key_here'
+
+# Filter by multiple parameters
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed?email=customer@example.com&sessionId=abc123&wordpressSlug=vintage-watch-123' \
+  -H 'X-API-Key: your_api_key_here'
+```
+
+**Response** (same format for both endpoints):
 ```json
 {
   "appraisals": [
@@ -80,7 +129,8 @@ curl -X GET \
       "finalDescription": "Mid-century timepiece",
       "pdfLink": "https://...",
       "docLink": "https://...",
-      "imagesJson": "{...}"
+      "imagesJson": "{...}",
+      "wordpressSlug": "vintage-watch-123"
     }
   ],
   "total": 1

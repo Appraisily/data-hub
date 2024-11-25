@@ -14,9 +14,5 @@ export interface PendingAppraisal {
   pdfLink: string;
   docLink: string;
   imagesJson: string;
-}
-
-export interface PendingAppraisalsResponse {
-  appraisals: PendingAppraisal[];
-  total: number;
+  wordpressSlug: string;
 }

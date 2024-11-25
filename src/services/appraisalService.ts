@@ -7,6 +7,7 @@ import NodeCache from 'node-cache';
 interface AppraisalFilters {
   email?: string;
   sessionId?: string;
+  wordpressSlug?: string;
 }
 
 export class AppraisalService {
@@ -14,8 +15,10 @@ export class AppraisalService {
   private sheets;
   private cache: NodeCache;
   private spreadsheetId: string;
-  private readonly SHEET_NAME = 'Pending Appraisals';
-  private readonly CACHE_KEY = 'pending_appraisals';
+  private readonly PENDING_SHEET = 'Pending Appraisals';
+  private readonly COMPLETED_SHEET = 'Completed Appraisals';
+  private readonly PENDING_CACHE_KEY = 'pending_appraisals';
+  private readonly COMPLETED_CACHE_KEY = 'completed_appraisals';
   private readonly CACHE_TTL = 300; // 5 minutes
 
   private constructor() {
@@ -32,12 +35,12 @@ export class AppraisalService {
     return AppraisalService.instance;
   }
 
-  async getPendingAppraisals(filters?: AppraisalFilters): Promise<PendingAppraisal[]> {
+  private async getAppraisals(sheetName: string, cacheKeyPrefix: string, filters?: AppraisalFilters): Promise<PendingAppraisal[]> {
     try {
       // Generate cache key including filters
       const cacheKey = filters 
-        ? `${this.CACHE_KEY}-${JSON.stringify(filters)}` 
-        : this.CACHE_KEY;
+        ? `${cacheKeyPrefix}-${JSON.stringify(filters)}` 
+        : cacheKeyPrefix;
 
       // Check cache first
       const cachedData = this.cache.get<PendingAppraisal[]>(cacheKey);
@@ -47,7 +50,7 @@ export class AppraisalService {
 
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.spreadsheetId,
-        range: `${this.SHEET_NAME}!A2:O`, // Start from A2 to skip headers
+        range: `${sheetName}!A2:P`, // Extended to column P for WordPress slug
       });
 
       const rows = response.data.values;
@@ -70,7 +73,8 @@ export class AppraisalService {
         finalDescription: row[11] || '',
         pdfLink: row[12] || '',
         docLink: row[13] || '',
-        imagesJson: row[14] || ''
+        imagesJson: row[14] || '',
+        wordpressSlug: row[15] || ''
       }));
 
       // Apply filters if provided
@@ -80,7 +84,9 @@ export class AppraisalService {
             appraisal.customerEmail.toLowerCase() === filters.email.toLowerCase();
           const matchesSessionId = !filters.sessionId || 
             appraisal.sessionId === filters.sessionId;
-          return matchesEmail && matchesSessionId;
+          const matchesWordpressSlug = !filters.wordpressSlug || 
+            appraisal.wordpressSlug === filters.wordpressSlug;
+          return matchesEmail && matchesSessionId && matchesWordpressSlug;
         });
       }
 
@@ -89,8 +95,16 @@ export class AppraisalService {
 
       return appraisals;
     } catch (error) {
-      logger.error('Error fetching pending appraisals:', error);
-      throw new Error('Failed to fetch pending appraisals');
+      logger.error(`Error fetching ${sheetName}:`, error);
+      throw new Error(`Failed to fetch ${sheetName.toLowerCase()}`);
     }
+  }
+
+  async getPendingAppraisals(filters?: AppraisalFilters): Promise<PendingAppraisal[]> {
+    return this.getAppraisals(this.PENDING_SHEET, this.PENDING_CACHE_KEY, filters);
+  }
+
+  async getCompletedAppraisals(filters?: AppraisalFilters): Promise<PendingAppraisal[]> {
+    return this.getAppraisals(this.COMPLETED_SHEET, this.COMPLETED_CACHE_KEY, filters);
   }
 }

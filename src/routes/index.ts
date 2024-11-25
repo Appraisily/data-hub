@@ -2,6 +2,7 @@ import { Express } from 'express';
 import { setupSheetRoutes } from './sheetRoutes';
 import { setupAppraisalRoutes } from './appraisalRoutes';
 import { setupSalesRoutes } from './salesRoutes';
+import { setupEndpointRoutes } from './endpointRoutes';
 import { RouterBuilder } from '../core/RouterBuilder';
 import { logger } from '../utils/logger';
 
@@ -11,6 +12,7 @@ export const setupRoutes = async (app: Express) => {
     setupSheetRoutes(app);
     setupAppraisalRoutes(app);
     setupSalesRoutes(app);
+    setupEndpointRoutes(app);
 
     // Generate dynamic routes
     const routerBuilder = RouterBuilder.getInstance();

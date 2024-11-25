@@ -12,7 +12,7 @@ A centralized data management service for Appraisily, providing secure access to
 
 ## Current API Status
 
-**Note**: Currently, only the appraisals endpoints are active. Additional endpoints for WordPress integration, analytics, and other features will be activated in future updates.
+**Note**: Currently, only the appraisals and sales endpoints are active. Additional endpoints for WordPress integration, analytics, and other features will be activated in future updates.
 
 ## Authentication
 
@@ -55,16 +55,6 @@ curl -X GET \
 curl -X GET \
   'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?sessionId=abc123' \
   -H 'X-API-Key: your_api_key_here'
-
-# Filter by WordPress slug
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?wordpressSlug=vintage-watch-123' \
-  -H 'X-API-Key: your_api_key_here'
-
-# Filter by multiple parameters
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?email=customer@example.com&sessionId=abc123&wordpressSlug=vintage-watch-123' \
-  -H 'X-API-Key: your_api_key_here'
 ```
 
 ### `GET /api/appraisals/completed`
@@ -82,55 +72,61 @@ X-API-Key: your_api_key_here
 - `sessionId` (optional): Filter by session ID (custom order ID)
 - `wordpressSlug` (optional): Filter by WordPress URL slug
 
+### `GET /api/sales`
+Retrieves sales data from the system.
+
+**Authentication Required**: Yes (API Key)
+
+**Headers**:
+```
+X-API-Key: your_api_key_here
+```
+
+**Query Parameters**:
+- `email` (optional): Filter by customer email
+- `sessionId` (optional): Filter by session ID
+- `stripeCustomerId` (optional): Filter by Stripe customer ID
+
 **Example Requests**:
 ```bash
-# Get all completed appraisals
+# Get all sales
 curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed' \
+  'https://data-hub-856401495068.us-central1.run.app/api/sales' \
   -H 'X-API-Key: your_api_key_here'
 
 # Filter by email
 curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed?email=customer@example.com' \
+  'https://data-hub-856401495068.us-central1.run.app/api/sales?email=customer@example.com' \
   -H 'X-API-Key: your_api_key_here'
 
 # Filter by session ID
 curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed?sessionId=abc123' \
+  'https://data-hub-856401495068.us-central1.run.app/api/sales?sessionId=abc123' \
   -H 'X-API-Key: your_api_key_here'
 
-# Filter by WordPress slug
+# Filter by Stripe customer ID
 curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed?wordpressSlug=vintage-watch-123' \
+  'https://data-hub-856401495068.us-central1.run.app/api/sales?stripeCustomerId=cus_xxx' \
   -H 'X-API-Key: your_api_key_here'
 
 # Filter by multiple parameters
 curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed?email=customer@example.com&sessionId=abc123&wordpressSlug=vintage-watch-123' \
+  'https://data-hub-856401495068.us-central1.run.app/api/sales?email=customer@example.com&sessionId=abc123' \
   -H 'X-API-Key: your_api_key_here'
 ```
 
-**Response** (same format for both endpoints):
+**Response**:
 ```json
 {
-  "appraisals": [
+  "sales": [
     {
-      "date": "2024-03-10",
-      "serviceType": "Standard",
       "sessionId": "abc123",
-      "customerEmail": "customer@example.com",
+      "chargeId": "ch_xxx",
+      "stripeCustomerId": "cus_xxx",
       "customerName": "John Doe",
-      "appraisalStatus": "Pending",
-      "appraisalEditLink": "https://...",
-      "imageDescription": "Vintage watch",
-      "customerDescription": "Family heirloom",
-      "appraisalValue": "$1000",
-      "appraisersDescription": "1950s Omega",
-      "finalDescription": "Mid-century timepiece",
-      "pdfLink": "https://...",
-      "docLink": "https://...",
-      "imagesJson": "{...}",
-      "wordpressSlug": "vintage-watch-123"
+      "customerEmail": "customer@example.com",
+      "amount": "$100.00",
+      "date": "2024-03-10"
     }
   ],
   "total": 1
@@ -143,7 +139,6 @@ The following endpoints are planned for future releases:
 - WordPress content synchronization
 - Analytics data retrieval
 - Chat logs integration
-- Sales data access
 
 ## Error Responses
 
@@ -179,6 +174,7 @@ The following secrets must be configured in Google Secret Manager:
 - `DATA_HUB_API_KEY`: API key for authentication
 - `PENDING_APPRAISALS_SPREADSHEET_ID`: Google Sheets ID for pending appraisals
 - `GOOGLE_DOCS_CREDENTIALS`: Service account credentials for Google Docs API
+- `SALES_SPREADSHEET_ID`: Google Sheets ID for sales data
 
 ### Running Locally
 ```bash

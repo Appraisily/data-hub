@@ -45,6 +45,7 @@ export class SecretManagerService {
       process.env.API_KEY = await this.getSecret('DATA_HUB_API_KEY');
       process.env.PENDING_APPRAISALS_SPREADSHEET_ID = await this.getSecret('PENDING_APPRAISALS_SPREADSHEET_ID');
       process.env.GOOGLE_DOCS_CREDENTIALS = await this.getSecret('GOOGLE_DOCS_CREDENTIALS');
+      process.env.SALES_SPREADSHEET_ID = await this.getSecret('SALES_SPREADSHEET_ID');
       
       logger.info('All secrets loaded successfully');
     } catch (error) {

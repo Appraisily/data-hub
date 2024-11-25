@@ -1,6 +1,6 @@
 # Appraisily Data Hub
 
-A centralized data management service for Appraisily, providing secure access to various data sources including Google Sheets, WordPress, and analytics data..
+A centralized data management service for Appraisily, providing secure access to various data sources including Google Sheets, WordPress, and analytics data.
 
 ## Features
 
@@ -9,6 +9,10 @@ A centralized data management service for Appraisily, providing secure access to
 - Caching system for improved performance
 - Comprehensive error handling and logging
 - Rate limiting for API protection
+
+## Current API Status
+
+**Note**: Currently, only the pending appraisals endpoint is active. Additional endpoints for WordPress integration, analytics, and other features will be activated in future updates.
 
 ## Authentication
 
@@ -20,7 +24,7 @@ X-API-Key: your_api_key_here
 
 ## API Endpoints
 
-### Appraisal Management
+### Active Endpoints
 
 #### `GET /api/appraisals/pending`
 Retrieves all pending appraisals from the system.
@@ -65,6 +69,14 @@ curl -X GET \
   -H 'X-API-Key: your_api_key_here'
 ```
 
+### Planned Endpoints (Coming Soon)
+
+The following endpoints are planned for future releases:
+- WordPress content synchronization
+- Analytics data retrieval
+- Chat logs integration
+- Sales data access
+
 ## Error Responses
 
 All endpoints follow a standard error response format:
@@ -94,10 +106,11 @@ The API implements rate limiting to protect against abuse:
 - Google Cloud project with necessary APIs enabled
 - Access to Google Secret Manager
 
-### Environment Variables
-Required secrets in Google Secret Manager:
+### Required Environment Variables
+The following secrets must be configured in Google Secret Manager:
 - `DATA_HUB_API_KEY`: API key for authentication
 - `PENDING_APPRAISALS_SPREADSHEET_ID`: Google Sheets ID for pending appraisals
+- `GOOGLE_DOCS_CREDENTIALS`: Service account credentials for Google Docs API
 
 ### Running Locally
 ```bash
@@ -114,5 +127,14 @@ npm start
 ## Deployment
 
 The service is deployed on Google Cloud Run. Deployments are handled automatically through Cloud Build triggers.
+
+### Build Process
+1. The Dockerfile uses Node.js 20 slim image
+2. Dependencies are installed using `npm ci`
+3. TypeScript code is compiled to JavaScript
+4. Application runs on port 8080
+
+### Environment Configuration
+All sensitive configuration is managed through Google Secret Manager and automatically loaded during deployment.
 
 Current production URL: `https://data-hub-856401495068.us-central1.run.app`

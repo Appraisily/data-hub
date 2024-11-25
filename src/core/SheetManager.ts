@@ -9,13 +9,14 @@ export class SheetManager {
   private cache: NodeCache;
   private metadata: Map<string, SheetMetadata> = new Map();
   private static instance: SheetManager;
-  private indexSheetId: string;
+  private spreadsheetId: string;
+  private readonly SHEET_NAME = 'Pending Appraisals';
 
   private constructor() {
     const auth = GoogleAuth.getInstance().getAuth();
     this.sheets = google.sheets({ version: 'v4', auth });
     this.cache = new NodeCache({ stdTTL: 300 }); // 5 minutes default TTL
-    this.indexSheetId = process.env.LOG_SPREADSHEET_ID || '';
+    this.spreadsheetId = process.env.PENDING_APPRAISALS_SPREADSHEET_ID || '';
   }
 
   public static getInstance(): SheetManager {
@@ -28,8 +29,8 @@ export class SheetManager {
   public async loadIndexSheet(): Promise<IndexSheet> {
     try {
       const response = await this.sheets.spreadsheets.values.get({
-        spreadsheetId: this.indexSheetId,
-        range: 'Index!A2:D'
+        spreadsheetId: this.spreadsheetId,
+        range: `${this.SHEET_NAME}!A2:D`
       });
 
       const rows = response.data.values || [];
@@ -52,8 +53,8 @@ export class SheetManager {
   public async parseHeaders(sheetId: string): Promise<string[]> {
     try {
       const response = await this.sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: 'A1:Z1'
+        spreadsheetId: this.spreadsheetId,
+        range: `${this.SHEET_NAME}!A1:Z1`
       });
 
       return response.data.values?.[0] || [];
@@ -73,8 +74,8 @@ export class SheetManager {
       }
 
       const response = await this.sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: 'A2:Z'
+        spreadsheetId: this.spreadsheetId,
+        range: `${this.SHEET_NAME}!A2:Z`
       });
 
       let data = response.data.values || [];

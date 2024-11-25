@@ -7,7 +7,6 @@ export class SecretManagerService {
   private projectId: string;
 
   private constructor() {
-    // Use default credentials
     this.client = new SecretManagerServiceClient();
     this.projectId = process.env.GOOGLE_CLOUD_PROJECT_ID || '';
   }
@@ -42,8 +41,10 @@ export class SecretManagerService {
 
   async loadSecrets(): Promise<void> {
     try {
-      // Load API key
+      // Load required secrets
       process.env.API_KEY = await this.getSecret('DATA_HUB_API_KEY');
+      process.env.PENDING_APPRAISALS_SPREADSHEET_ID = await this.getSecret('PENDING_APPRAISALS_SPREADSHEET_ID');
+      process.env.GOOGLE_DOCS_CREDENTIALS = await this.getSecret('GOOGLE_DOCS_CREDENTIALS');
       
       logger.info('All secrets loaded successfully');
     } catch (error) {

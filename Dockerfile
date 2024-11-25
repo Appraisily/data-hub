@@ -2,30 +2,23 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Set NODE_ENV to production
-ENV NODE_ENV=production
-
 # Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (including dev dependencies needed for build)
+# Install dependencies
 RUN npm ci
 
-# Asegurar permisos correctos y cambiar al usuario node
-RUN mkdir -p dist && chown -R node:node .
-USER node
-
 # Copy source code
-COPY --chown=node:node . .
+COPY . .
 
-# Build usando npx con la ruta completa al paquete typescript
-RUN npx typescript/bin/tsc
-
-# Clean up dev dependencies
-RUN npm ci --omit=dev
+# Build TypeScript code
+RUN npm run build
 
 # Expose port
 EXPOSE 8080
 
+# Set environment variable for port
+ENV PORT=8080
+
 # Start the server
-CMD [ "npm", "start" ]
+CMD [ "node", "dist/index.js" ]

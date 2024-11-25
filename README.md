@@ -1,6 +1,6 @@
 # Appraisily Data Hub
 
-A centralized data management service for Appraisily, providing secure access to various data sources including Google Sheets, WordPress, and analytics data.
+A centralized data management service for Appraisily, providing secure access to various data sources including Google Sheets, WordPress, and analytics data..
 
 ## Features
 

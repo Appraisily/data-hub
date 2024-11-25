@@ -4,6 +4,11 @@ import { PendingAppraisal } from '../types/appraisal';
 import { logger } from '../utils/logger';
 import NodeCache from 'node-cache';
 
+interface AppraisalFilters {
+  email?: string;
+  sessionId?: string;
+}
+
 export class AppraisalService {
   private static instance: AppraisalService;
   private sheets;
@@ -27,10 +32,15 @@ export class AppraisalService {
     return AppraisalService.instance;
   }
 
-  async getPendingAppraisals(): Promise<PendingAppraisal[]> {
+  async getPendingAppraisals(filters?: AppraisalFilters): Promise<PendingAppraisal[]> {
     try {
+      // Generate cache key including filters
+      const cacheKey = filters 
+        ? `${this.CACHE_KEY}-${JSON.stringify(filters)}` 
+        : this.CACHE_KEY;
+
       // Check cache first
-      const cachedData = this.cache.get<PendingAppraisal[]>(this.CACHE_KEY);
+      const cachedData = this.cache.get<PendingAppraisal[]>(cacheKey);
       if (cachedData) {
         return cachedData;
       }
@@ -45,7 +55,7 @@ export class AppraisalService {
         return [];
       }
 
-      const appraisals: PendingAppraisal[] = rows.map(row => ({
+      let appraisals: PendingAppraisal[] = rows.map(row => ({
         date: row[0] || '',
         serviceType: row[1] || '',
         sessionId: row[2] || '',
@@ -63,8 +73,19 @@ export class AppraisalService {
         imagesJson: row[14] || ''
       }));
 
+      // Apply filters if provided
+      if (filters) {
+        appraisals = appraisals.filter(appraisal => {
+          const matchesEmail = !filters.email || 
+            appraisal.customerEmail.toLowerCase() === filters.email.toLowerCase();
+          const matchesSessionId = !filters.sessionId || 
+            appraisal.sessionId === filters.sessionId;
+          return matchesEmail && matchesSessionId;
+        });
+      }
+
       // Store in cache
-      this.cache.set(this.CACHE_KEY, appraisals, this.CACHE_TTL);
+      this.cache.set(cacheKey, appraisals, this.CACHE_TTL);
 
       return appraisals;
     } catch (error) {

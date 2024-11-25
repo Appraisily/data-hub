@@ -22,9 +22,7 @@ All endpoints require authentication using an API key. Include the API key in th
 X-API-Key: your_api_key_here
 ```
 
-## API Endpoints
-
-### Active Endpoints
+## Active Endpoints
 
 #### `GET /api/appraisals/pending`
 Retrieves all pending appraisals from the system.
@@ -34,6 +32,33 @@ Retrieves all pending appraisals from the system.
 **Headers**:
 ```
 X-API-Key: your_api_key_here
+```
+
+**Query Parameters**:
+- `email` (optional): Filter by customer email
+- `sessionId` (optional): Filter by session ID (custom order ID)
+
+**Example Requests**:
+```bash
+# Get all pending appraisals
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending' \
+  -H 'X-API-Key: your_api_key_here'
+
+# Filter by email
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?email=customer@example.com' \
+  -H 'X-API-Key: your_api_key_here'
+
+# Filter by session ID
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?sessionId=abc123' \
+  -H 'X-API-Key: your_api_key_here'
+
+# Filter by both email and session ID
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?email=customer@example.com&sessionId=abc123' \
+  -H 'X-API-Key: your_api_key_here'
 ```
 
 **Response**:
@@ -60,13 +85,6 @@ X-API-Key: your_api_key_here
   ],
   "total": 1
 }
-```
-
-**Example Request**:
-```bash
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending' \
-  -H 'X-API-Key: your_api_key_here'
 ```
 
 ### Planned Endpoints (Coming Soon)
@@ -124,10 +142,6 @@ npm run build
 npm start
 ```
 
-## Deployment
-
-The service is deployed on Google Cloud Run. Deployments are handled automatically through Cloud Build triggers.
-
 ### Build Process
 1. The Dockerfile uses Node.js 20 slim image
 2. Dependencies are installed using `npm ci`
@@ -136,5 +150,9 @@ The service is deployed on Google Cloud Run. Deployments are handled automatical
 
 ### Environment Configuration
 All sensitive configuration is managed through Google Secret Manager and automatically loaded during deployment.
+
+## Deployment
+
+The service is deployed on Google Cloud Run. Deployments are handled automatically through Cloud Build triggers.
 
 Current production URL: `https://data-hub-856401495068.us-central1.run.app`

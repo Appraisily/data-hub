@@ -38,6 +38,54 @@ curl -X GET 'https://data-hub-856401495068.us-central1.run.app/api/endpoints'
 - Rate limiting information
 - Example requests and responses
 
+### `GET /api/process`
+Retrieves information about the appraisal request process and customer journey.
+
+**Authentication Required**: Yes (API Key)
+
+**Example Request**:
+```bash
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/process' \
+  -H 'X-API-Key: your_api_key_here'
+```
+
+**Response**:
+```json
+{
+  "customerJourney": {
+    "startUrl": "appraisily.com/start",
+    "steps": [
+      "Select desired appraisal service (Regular, Insurance, or Tax)",
+      "Choose preferred date for the appraisal",
+      "Click 'Continue to Checkout'"
+    ]
+  },
+  "paymentProcess": {
+    "steps": [
+      "Redirected to Stripe checkout",
+      "Complete payment securely",
+      "Automatic redirect to success page"
+    ]
+  },
+  "appraisalDetails": {
+    "successPageFormat": "appraisily.com/success-payment/?session_id={sessionID}",
+    "requiredInformation": [
+      "Images of item(s)",
+      "Description and details",
+      "Additional relevant information"
+    ]
+  },
+  "serviceDelivery": {
+    "process": [
+      "Appraisal process begins after details submission",
+      "Expert assigned based on service type",
+      "Completed within specified timeframe (usually 48 hours)"
+    ]
+  }
+}
+```
+
 ### `GET /api/appraisals/pending`
 Retrieves all pending appraisals from the system.
 

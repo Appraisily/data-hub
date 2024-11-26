@@ -18,6 +18,44 @@ export interface EndpointDoc {
 
 export const endpoints: EndpointDoc[] = [
   {
+    path: '/api/process',
+    method: 'GET',
+    description: 'Retrieves information about the appraisal request process',
+    authentication: true,
+    responseExample: {
+      "customerJourney": {
+        "startUrl": "appraisily.com/start",
+        "steps": [
+          "Select desired appraisal service (Regular, Insurance, or Tax)",
+          "Choose preferred date for the appraisal",
+          "Click 'Continue to Checkout'"
+        ]
+      },
+      "paymentProcess": {
+        "steps": [
+          "Redirected to Stripe checkout",
+          "Complete payment securely",
+          "Automatic redirect to success page"
+        ]
+      },
+      "appraisalDetails": {
+        "successPageFormat": "appraisily.com/success-payment/?session_id={sessionID}",
+        "requiredInformation": [
+          "Images of item(s)",
+          "Description and details",
+          "Additional relevant information"
+        ]
+      },
+      "serviceDelivery": {
+        "process": [
+          "Appraisal process begins after details submission",
+          "Expert assigned based on service type",
+          "Completed within specified timeframe (usually 48 hours)"
+        ]
+      }
+    }
+  },
+  {
     path: '/api/appraisals/pending',
     method: 'GET',
     description: 'Retrieves pending appraisals with optional filters',

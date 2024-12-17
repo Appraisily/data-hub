@@ -6,7 +6,11 @@ import cors from 'cors';
 export const setupMiddleware = (app: Express) => {
   // CORS middleware
   app.use(cors({
-    origin: ['https://incredible-truffle-ee0b8c.netlify.app'],
+    origin: [
+      'https://incredible-truffle-ee0b8c.netlify.app',
+      // Allow WebContainer development URLs
+      /^https:\/\/[a-z0-9]+-oci\d--\d+--[a-f0-9]+\.local-credentialless\.webcontainer-api\.io$/
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'X-API-Key'],
     maxAge: 86400 // 24 hours

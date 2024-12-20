@@ -1,273 +1,176 @@
-# Appraisily Data Hub
+# Payment Processor Service
 
-A centralized data management service for Appraisily, providing secure access to various data sources including Google Sheets, WordPress, and analytics data.
+A Node.js service that handles Stripe payments, records transactions, and manages art appraisal workflows.
 
-## Features
+## File Structure
 
-- Secure API access with API key authentication
-- Google Sheets integration for appraisal and sales data
-- Automatic documentation endpoint
-- Caching system for improved performance
-- Comprehensive error handling and logging
-- Rate limiting for API protection
-- Query parameter filtering for all endpoints
-
-## Authentication
-
-All endpoints (except `/api/endpoints`) require authentication using an API key. Include the API key in the request headers:
-
-```bash
-X-API-Key: your_api_key_here
+```
+├── index.js              # Main application entry point
+├── config.js             # Configuration and secrets management
+├── errorLogger.js        # Error logging functionality
+├── Dockerfile           # Container configuration
+└── package.json         # Project dependencies
 ```
 
-## API Documentation
+## Endpoints
 
-### `GET /api/endpoints`
-Retrieves comprehensive API documentation including all available endpoints, their parameters, and example responses.
+### POST `/stripe-webhook`
+Handles Stripe webhook events for completed checkout sessions.
 
-**Authentication Required**: No
+**Headers Required:**
+- `stripe-signature`: Webhook signature from Stripe
 
-**Example Request**:
-```bash
-curl -X GET 'https://data-hub-856401495068.us-central1.run.app/api/endpoints'
-```
-
-**Response**: Returns a detailed documentation object containing:
-- List of all available endpoints
-- Authentication requirements
-- Rate limiting information
-- Example requests and responses
-
-### `GET /api/process`
-Retrieves information about the appraisal request process and customer journey.
-
-**Authentication Required**: Yes (API Key)
-
-**Example Request**:
-```bash
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/process' \
-  -H 'X-API-Key: your_api_key_here'
-```
-
-**Response**:
+**Webhook Event Structure:**
 ```json
 {
-  "customerJourney": {
-    "startUrl": "appraisily.com/start",
-    "steps": [
-      "Select desired appraisal service (Regular, Insurance, or Tax)",
-      "Choose preferred date for the appraisal",
-      "Click 'Continue to Checkout'"
-    ]
-  },
-  "paymentProcess": {
-    "steps": [
-      "Redirected to Stripe checkout",
-      "Complete payment securely",
-      "Automatic redirect to success page"
-    ]
-  },
-  "appraisalDetails": {
-    "successPageFormat": "appraisily.com/success-payment/?session_id={sessionID}",
-    "requiredInformation": [
-      "Images of item(s)",
-      "Description and details",
-      "Additional relevant information"
-    ]
-  },
-  "serviceDelivery": {
-    "process": [
-      "Appraisal process begins after details submission",
-      "Expert assigned based on service type",
-      "Completed within specified timeframe (usually 48 hours)"
-    ]
+  "type": "checkout.session.completed",
+  "data": {
+    "object": {
+      "id": "cs_test_...",
+      "payment_intent": "pi_...",
+      "customer": "cus_...",
+      "amount_total": 1000,
+      "currency": "usd",
+      "customer_details": {
+        "email": "customer@example.com",
+        "name": "John Doe"
+      },
+      "created": 1234567890,
+      "payment_link": "plink_..."
+    }
   }
 }
 ```
 
-### `GET /api/appraisals/pending`
-Retrieves all pending appraisals from the system.
+### GET `/`
+Health check endpoint that returns service status.
 
-**Authentication Required**: Yes (API Key)
+## Required Secrets
 
-**Query Parameters**:
-- `email` (optional): Filter by customer email
-- `sessionId` (optional): Filter by session ID (custom order ID)
-- `wordpressSlug` (optional): Filter by WordPress URL slug
+Configure the following secrets in Google Cloud Secret Manager:
 
-**Example Requests**:
-```bash
-# Get all pending appraisals
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending' \
-  -H 'X-API-Key: your_api_key_here'
-
-# Filter by email
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?email=customer@example.com' \
-  -H 'X-API-Key: your_api_key_here'
-
-# Filter by multiple parameters
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/pending?email=customer@example.com&sessionId=abc123' \
-  -H 'X-API-Key: your_api_key_here'
+```
+STRIPE_SECRET_KEY_TEST           # Stripe test environment API key
+STRIPE_SECRET_KEY_LIVE          # Stripe live environment API key
+STRIPE_WEBHOOK_SECRET_TEST      # Stripe test webhook signing secret
+STRIPE_WEBHOOK_SECRET_LIVE      # Stripe live webhook signing secret
+SALES_SPREADSHEET_ID           # Google Sheet ID for sales records
+PENDING_APPRAISALS_SPREADSHEET_ID # Google Sheet ID for pending appraisals
+LOG_SPREADSHEET_ID             # Google Sheet ID for error logs
+SENDGRID_API_KEY              # SendGrid API key
+SENDGRID_EMAIL                # Verified sender email for SendGrid
+SEND_GRID_TEMPLATE_NOTIFY_PAYMENT_RECEIVED # SendGrid template ID
 ```
 
-**Response**:
+## Core Functions
+
+### Payment Processing
+```javascript
+// Stripe webhook event handler
+app.post('/stripe-webhook', async (req, res) => {
+  // Handles payment completion events
+  // Verifies webhook signatures
+  // Records transactions
+  // Sends confirmation emails
+})
+```
+
+### Configuration Management
+```javascript
+// config.js
+async function getSecret(secretName)
+// Retrieves secrets from Google Cloud Secret Manager
+
+async function loadConfig()
+// Loads and caches all configuration values
+```
+
+### Error Logging
+```javascript
+// errorLogger.js
+async function logError(config, errorDetails)
+// Logs errors to Google Sheets with detailed information
+```
+
+## Google Sheets Structure
+
+### Sales Sheet
+Columns:
+- A: Session ID
+- B: Payment Intent ID
+- C: Customer ID
+- D: Customer Name
+- E: Customer Email
+- F: Amount Paid
+- G: Session Date
+- H: Mode (Test/Live)
+
+### Pending Appraisals Sheet
+Columns:
+- A: Date
+- B: Appraisal Type
+- C: Session ID
+- D: Customer Email
+- E: Customer Name
+- F: Status
+
+### Error Log Sheet
+Columns:
+- Timestamp
+- Severity
+- Script Name
+- Error Code
+- Error Message
+- Stack Trace
+- User ID
+- Request ID
+- Environment
+- Endpoint
+- Additional Context
+- Resolution Status
+- Assigned To
+- ChatGPT Link
+- Resolution Link
+
+## Product Types
+
+The service handles different types of art appraisals:
 ```json
 {
-  "appraisals": [
-    {
-      "date": "2024-03-10",
-      "serviceType": "Standard",
-      "sessionId": "abc123",
-      "customerEmail": "customer@example.com",
-      "customerName": "John Doe",
-      "appraisalStatus": "Pending",
-      "appraisalEditLink": "https://...",
-      "imageDescription": "Vintage watch",
-      "customerDescription": "Family heirloom",
-      "appraisalValue": "$1000",
-      "appraisersDescription": "1950s Omega",
-      "finalDescription": "Mid-century timepiece",
-      "pdfLink": "https://...",
-      "docLink": "https://...",
-      "imagesJson": "{}",
-      "wordpressSlug": "vintage-watch-appraisal"
-    }
-  ],
-  "total": 1
+  "plink_1PzzahAQSJ9n5XyNZTMmYyLJ": { "productName": "RegularArt" },
+  "plink_1OnRh5AQSJ9n5XyNBhDuqbtS": { "productName": "RegularArt" },
+  "plink_1OnRpsAQSJ9n5XyN2BCtWNEs": { "productName": "InsuranceArt" },
+  "plink_1OnRzAAQSJ9n5XyNyLmReeCk": { "productName": "TaxArt" }
 }
 ```
 
-### `GET /api/appraisals/completed`
-Retrieves all completed appraisals from the system.
+## Environment Variables
 
-**Authentication Required**: Yes (API Key)
+Optional environment variables:
+```
+PORT                    # Server port (default: 8080)
+GOOGLE_CLOUD_PROJECT_ID # Google Cloud project ID
+CHATGPT_CHAT_URL       # Support chat URL
+RESOLUTION_LINK        # Issue resolution link
+ASSIGNED_TO            # Default assignee for issues
+```
 
-**Query Parameters**: Same as `/api/appraisals/pending`
+## Running the Service
 
-**Example Request**:
 ```bash
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/appraisals/completed' \
-  -H 'X-API-Key: your_api_key_here'
-```
-
-### `GET /api/sales`
-Retrieves sales data from the system.
-
-**Authentication Required**: Yes (API Key)
-
-**Query Parameters**:
-- `email` (optional): Filter by customer email
-- `sessionId` (optional): Filter by session ID
-- `stripeCustomerId` (optional): Filter by Stripe customer ID
-
-**Example Requests**:
-```bash
-# Get all sales
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/sales' \
-  -H 'X-API-Key: your_api_key_here'
-
-# Filter by email
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/sales?email=customer@example.com' \
-  -H 'X-API-Key: your_api_key_here'
-
-# Filter by multiple parameters
-curl -X GET \
-  'https://data-hub-856401495068.us-central1.run.app/api/sales?email=customer@example.com&sessionId=abc123' \
-  -H 'X-API-Key: your_api_key_here'
-```
-
-**Response**:
-```json
-{
-  "sales": [
-    {
-      "sessionId": "abc123",
-      "chargeId": "ch_xxx",
-      "stripeCustomerId": "cus_xxx",
-      "customerName": "John Doe",
-      "customerEmail": "customer@example.com",
-      "amount": "$100.00",
-      "date": "2024-03-10"
-    }
-  ],
-  "total": 1
-}
-```
-
-## Error Responses
-
-All endpoints follow a standard error response format:
-
-```json
-{
-  "error": "Error message description"
-}
-```
-
-Common HTTP status codes:
-- 200: Success
-- 400: Bad Request (Invalid parameters)
-- 401: Unauthorized (Invalid API Key)
-- 429: Too Many Requests (Rate limit exceeded)
-- 500: Internal Server Error
-
-## Rate Limiting
-
-The API implements rate limiting to protect against abuse:
-- 100 requests per 15 minutes per IP address
-- After exceeding the limit, requests will receive a 429 (Too Many Requests) response
-
-## Caching
-
-The API implements a caching system to improve performance:
-- Cache duration: 5 minutes
-- Separate caches for different query parameters
-- Automatic cache invalidation on data updates
-
-## Development
-
-### Prerequisites
-- Node.js >= 20.0.0
-- Google Cloud project with necessary APIs enabled
-- Access to Google Secret Manager
-
-### Required Environment Variables
-The following secrets must be configured in Google Secret Manager:
-- `DATA_HUB_API_KEY`: API key for authentication
-- `PENDING_APPRAISALS_SPREADSHEET_ID`: Google Sheets ID for pending appraisals
-- `SALES_SPREADSHEET_ID`: Google Sheets ID for sales data
-- `GOOGLE_DOCS_CREDENTIALS`: Service account credentials for Google Docs API
-
-### Running Locally
-```bash
+# Install dependencies
 npm install
-npm run dev
-```
 
-### Building for Production
-```bash
-npm run build
+# Start the service
 npm start
 ```
 
-### Build Process
-1. The Dockerfile uses Node.js 20 slim image
-2. Dependencies are installed using `npm ci`
-3. TypeScript code is compiled to JavaScript
-4. Application runs on port 8080
+## Docker Deployment
 
-### Environment Configuration
-All sensitive configuration is managed through Google Secret Manager and automatically loaded during deployment.
+```bash
+# Build the container
+docker build -t payment-processor .
 
-## Deployment
-
-The service is deployed on Google Cloud Run. Deployments are handled automatically through Cloud Build triggers.
-
-Current production URL: `https://data-hub-856401495068.us-central1.run.app`
+# Run the container
+docker run -p 8080:8080 payment-processor
+```

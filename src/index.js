@@ -21,16 +21,17 @@ async function initializeApp() {
     // Configure CORS for WebContainer origins
     const corsOptions = {
       origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
+        // Allow requests with no origin
         if (!origin) return callback(null, true);
         
-        // Allow appraisily.com and subdomains
-        if (origin.endsWith('appraisily.com')) {
-          return callback(null, true);
-        }
+        // Allow specific domains and their subdomains
+        const allowedDomains = [
+          'appraisily.com',
+          'netlify.app',
+          'webcontainer.io'
+        ];
         
-        // Allow WebContainer origins
-        if (origin.includes('webcontainer-api.io')) {
+        if (allowedDomains.some(domain => origin.endsWith(domain))) {
           return callback(null, true);
         }
         
@@ -39,10 +40,11 @@ async function initializeApp() {
           return callback(null, true);
         }
         
+        console.log(`Blocked origin: ${origin}`);
         callback(new Error('Not allowed by CORS'));
       },
       methods: ['GET', 'POST'],
-      allowedHeaders: ['Content-Type', 'x-shared-secret'],
+      allowedHeaders: ['Content-Type', 'x-shared-secret', 'Authorization'],
       credentials: true
     };
     

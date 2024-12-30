@@ -28,7 +28,8 @@ async function initializeApp() {
         const allowedDomains = [
           'appraisily.com',
           'netlify.app',
-          'webcontainer.io'
+          'webcontainer.io',
+          'webcontainer-api.io'
         ];
         
         if (allowedDomains.some(domain => origin.endsWith(domain))) {

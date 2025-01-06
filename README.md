@@ -1,54 +1,9 @@
 # Appraisily Data Hub
 
-<<<<<<< HEAD
-A Node.js service that handles Stripe payments, processes art appraisal submissions, and manages the workflow between payment processing and WordPress content creation.
-
-## Architecture Overview
-
-The service consists of three main components:
-1. Payment Processing (Stripe webhooks and session management)
-2. Appraisal Submission Processing (image handling and WordPress integration)
-3. Background Processing (image optimization and notifications)
-=======
 A centralized data management service for Appraisily, providing secure access to various data sources including Google Sheets, WordPress, and analytics data.
->>>>>>> parent of 762c98c (ssa)
 
 ## Features
 
-<<<<<<< HEAD
-```
-├── src/
-│   ├── routes/
-│   │   ├── appraisalRoutes.js    # Handles appraisal submission endpoints
-│   │   ├── stripeRoutes.js       # Handles Stripe-related endpoints
-│   │   └── webhookRoutes.js      # Manages Stripe webhook endpoints
-│   ├── services/
-│   │   ├── appraisalProcessor.js # Processes appraisal submissions
-│   │   ├── backgroundProcessor.js # Handles async image processing
-│   │   ├── checkoutProcessor.js  # Processes Stripe checkout sessions
-│   │   └── webhookHandler.js     # Manages webhook event processing
-│   ├── utils/
-│   │   ├── emailService.js       # SendGrid email functionality
-│   │   ├── errorLogger.js        # Google Sheets error logging
-│   │   ├── imageProcessor.js     # Sharp image optimization
-│   │   ├── validators.js         # Request validation
-│   │   └── wordPressClient.js    # WordPress API integration
-│   ├── config.js                 # Configuration management
-│   └── index.js                  # Application entry point
-├── Dockerfile                    # Container configuration
-└── package.json                  # Project dependencies
-```
-
-## API Endpoints
-
-### Stripe Webhooks
-
-#### POST `/stripe-webhook`
-Handles live mode Stripe webhook events.
-
-#### POST `/stripe-webhook-test`
-Handles test mode Stripe webhook events.
-=======
 - Secure API access with API key authentication
 - Google Sheets integration for appraisal and sales data
 - Automatic documentation endpoint
@@ -56,6 +11,7 @@ Handles test mode Stripe webhook events.
 - Comprehensive error handling and logging
 - Rate limiting for API protection
 - Query parameter filtering for all endpoints
+- Chat logs tracking and analysis
 
 ## Authentication
 
@@ -402,6 +358,53 @@ curl -X GET \
 }
 ```
 
+### `GET /api/chat-logs`
+Retrieves chat logs with optional date filtering.
+
+**Authentication Required**: Yes (API Key)
+
+**Query Parameters**:
+- `startDate` (optional): Filter logs after this date (ISO format)
+- `endDate` (optional): Filter logs before this date (ISO format)
+
+**Example Request**:
+```bash
+curl -X GET \
+  'https://data-hub-856401495068.us-central1.run.app/api/chat-logs?startDate=2025-01-06T00:00:00.000Z' \
+  -H 'X-API-Key: your_api_key_here'
+```
+
+**Response**:
+```json
+{
+  "logs": [
+    {
+      "timestamp": "2025-01-06T03:54:07.594Z",
+      "clientId": "3be32655-e979-4ba2-b4ed-814a38023e59",
+      "conversationId": "7c80300a-c5de-4d40-9f3a-74aba12b1307",
+      "duration": 56,
+      "messageCount": 1,
+      "imageCount": 0,
+      "conversation": [
+        {
+          "role": "user",
+          "content": "Sample message",
+          "hasImages": true,
+          "timestamp": "2025-01-06T03:53:58.958Z",
+          "messageId": "d614cde8-1d18-4b57-b5ae-3983c5f78773"
+        }
+      ],
+      "hasImages": "No",
+      "type": "CHAT_SESSION",
+      "urgency": "medium",
+      "labels": ["chat", "normal_closure"],
+      "disconnectReason": "normal_closure"
+    }
+  ],
+  "total": 1
+}
+```
+
 ## Error Responses
 
 All endpoints follow a standard error response format:
@@ -442,6 +445,7 @@ The API implements a caching system to improve performance:
 ### Required Environment Variables
 The following secrets must be configured in Google Secret Manager:
 - `DATA_HUB_API_KEY`: API key for authentication
+- `SHEETS_ID_MICHELLE_CHAT_LOG`: Google Sheets ID for chat logs
 - `PENDING_APPRAISALS_SPREADSHEET_ID`: Google Sheets ID for pending appraisals
 - `SALES_SPREADSHEET_ID`: Google Sheets ID for sales data
 - `GOOGLE_DOCS_CREDENTIALS`: Service account credentials for Google Docs API
@@ -511,4 +515,3 @@ All sensitive configuration is managed through Google Secret Manager and automat
 The service is deployed on Google Cloud Run. Deployments are handled automatically through Cloud Build triggers.
 
 Current production URL: `https://data-hub-856401495068.us-central1.run.app`
->>>>>>> parent of 762c98c (ssa)

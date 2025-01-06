@@ -1,21 +1,24 @@
-# Dockerfile
+FROM node:20-slim
 
-FROM node:18
+WORKDIR /app
 
-# Crear directorio de la app
-WORKDIR /usr/src/app
-
-# Copiar package.json y package-lock.json
+# Copy package files
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm install
+# Install dependencies
+RUN npm ci
 
-# Copiar el resto de la aplicación
+# Copy source code
 COPY . .
 
-# Exponer el puerto
+# Build TypeScript code
+RUN npm run build
+
+# Expose port
 EXPOSE 8080
 
-# Iniciar la aplicación
-CMD ["npm", "start"]
+# Set environment variable for port
+ENV PORT=8080
+
+# Start the server
+CMD [ "node", "dist/index.js" ]

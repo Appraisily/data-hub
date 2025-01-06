@@ -33,6 +33,7 @@ async function loadConfig() {
     SALES_SPREADSHEET_ID: await getSecret('SALES_SPREADSHEET_ID'),
     PENDING_APPRAISALS_SPREADSHEET_ID: await getSecret('PENDING_APPRAISALS_SPREADSHEET_ID'),
     LOG_SPREADSHEET_ID: await getSecret('LOG_SPREADSHEET_ID'),
+    MICHELLE_CHAT_LOGS_SPREADSHEET_ID: await getSecret('SHEETS_ID_MICHELLE_CHAT_LOG'),
 
     // Sheet Names
     SALES_SHEET_NAME: 'Sales',

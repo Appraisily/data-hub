@@ -3,6 +3,8 @@ const cors = require('cors');
 const { setupWebhookRoutes } = require('./routes/webhookRoutes');
 const { setupStripeRoutes } = require('./routes/stripeRoutes');
 const { setupAppraisalRoutes } = require('./routes/appraisalRoutes');
+const { setupChatLogsRoutes } = require('./routes/chatLogsRoutes');
+const { setupHealthRoutes } = require('./routes/healthRoutes');
 const loadConfig = require('./config');
 
 async function initializeApp() {
@@ -60,6 +62,12 @@ async function initializeApp() {
 
     // Setup Appraisal routes
     setupAppraisalRoutes(app, config);
+
+    // Setup Chat Logs routes
+    setupChatLogsRoutes(app, config);
+
+    // Setup Health routes
+    setupHealthRoutes(app, config);
 
     // Global middleware to parse JSON bodies for routes other than webhooks
 
